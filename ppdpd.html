@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Quiz – 35 Questions</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: linear-gradient(135deg, #f8fafc, #e2e8f0);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --soft: #e2e8f0;
+      --border: #cbd5e1;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --danger-bg: #fee2e2;
+      --danger-text: #991b1b;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+      --option-bg: #ffffff;
+      --option-hover: #f8faff;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+    body.dark {
+      --bg: linear-gradient(135deg, #0f172a, #111827);
+      --card: #111827;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --soft: #1f2937;
+      --border: #374151;
+      --primary: #818cf8;
+      --primary-hover: #6366f1;
+      --danger-bg: #3f1d1d;
+      --danger-text: #fecaca;
+      --success-bg: #163021;
+      --success-text: #bbf7d0;
+      --option-bg: #111827;
+      --option-hover: #172033;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    h1 { margin: 0 0 8px; font-size: 2rem; }
+    h2 { margin: 0 0 8px; font-size: 1.2rem; }
+    .sub { color: var(--muted); line-height: 1.5; margin-bottom: 20px; }
+    .toolbar, .controls, .options-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .toolbar { justify-content: space-between; margin-bottom: 16px; }
+    .pill {
+      background: var(--soft);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .setup {
+      display: grid;
+      gap: 14px;
+      margin: 20px 0 24px;
+    }
+    .setup-card, .section-card {
+      background: var(--soft);
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .progress {
+      width: 100%;
+      height: 10px;
+      background: var(--soft);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 16px 0 24px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      transition: width 0.25s ease;
+    }
+    .question-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .hint { color: var(--muted); margin-bottom: 18px; }
+    .answers {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    label.option {
+      display: block;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      background: var(--option-bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    label.option:hover {
+      border-color: var(--primary);
+      background: var(--option-hover);
+    }
+    label.option.selected {
+      border-color: var(--primary);
+      background: var(--option-hover);
+    }
+    label.option.correct-answer {
+      border-color: #22c55e;
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+    label.option.wrong-answer {
+      border-color: #ef4444;
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+    .option input { margin-right: 10px; }
+    button, select {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    select { background: var(--soft); color: var(--text); }
+    .primary { background: var(--primary); color: white; }
+    .primary:hover { background: var(--primary-hover); }
+    .secondary { background: var(--soft); color: var(--text); }
+    .success { background: var(--success-bg); color: var(--success-text); }
+    .danger { background: var(--danger-bg); color: var(--danger-text); }
+    .hidden { display: none; }
+    .feedback {
+      margin: 8px 0 20px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .feedback.correct { background: var(--success-bg); color: var(--success-text); }
+    .feedback.wrong { background: var(--danger-bg); color: var(--danger-text); }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .stat {
+      background: var(--soft);
+      padding: 14px;
+      border-radius: 16px;
+      text-align: center;
+    }
+    .stat strong { display: block; font-size: 1.3rem; margin-bottom: 4px; }
+    .result-score { font-size: 2rem; font-weight: 800; margin: 10px 0 8px; }
+    .review-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .review-item {
+      border: 1px solid var(--soft);
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--soft);
+    }
+    .correct { border-left: 6px solid #16a34a; }
+    .wrong { border-left: 6px solid #dc2626; }
+    .muted { color: var(--muted); }
+    .small { font-size: 0.95rem; line-height: 1.5; }
+    .mini { font-size: 0.9rem; color: var(--muted); }
+    @media (max-width: 760px) {
+      .grid-2, .stats { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .wrap { padding: 14px; }
+      .card { padding: 18px; }
+      h1 { font-size: 1.5rem; }
+      .question-title { font-size: 1.05rem; }
+      button, select { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div id="startScreen">
+        <h1>Reading Quiz – 35 Questions</h1>
+        <p class="sub">Built from your two reading files: Nyshanbayev et al. (2025) and Olcott (1995). Single-answer questions only, with instant feedback, dark mode, timer, shuffle, and practice mode.</p>
+
+        <div class="grid-2">
+          <div class="section-card">
+            <h2>Sections</h2>
+            <div class="mini">Nyshanbayev et al. (2025): 20 questions</div>
+            <div class="mini">Olcott (1995): 15 questions</div>
+            <div class="mini" style="margin-top:10px;">You can do all 35 together or each section separately.</div>
+          </div>
+          <div class="section-card">
+            <h2>Modes</h2>
+            <div class="mini">Full mixed quiz</div>
+            <div class="mini">Nyshanbayev only</div>
+            <div class="mini">Olcott only</div>
+            <div class="mini">Practice wrong answers</div>
+          </div>
+        </div>
+
+        <div class="setup">
+          <div class="setup-card">
+            <h2>Quiz settings</h2>
+            <div class="options-row"><label><input type="checkbox" id="instantFeedbackToggle" checked> Show instantly if answer is correct</label></div>
+            <div class="options-row"><label><input type="checkbox" id="shuffleToggle"> Shuffle question order</label></div>
+            <div class="options-row"><label><input type="checkbox" id="darkModeToggle"> Start in dark mode</label></div>
+            <div class="options-row">
+              <label for="timerSelect">Timer:</label>
+              <select id="timerSelect">
+                <option value="0">No timer</option>
+                <option value="15">15 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="45">45 minutes</option>
+                <option value="60">60 minutes</option>
+                <option value="90">90 minutes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="primary" id="startAllBtn">Start all 35</button>
+          <button class="secondary" id="startNBtn">Nyshanbayev only</button>
+          <button class="secondary" id="startOBtn">Olcott only</button>
+          <button class="secondary" id="startWrongBtn">Practice wrong answers</button>
+          <button class="secondary" id="themeBtnStart">Toggle dark mode</button>
+        </div>
+      </div>
+
+      <div id="quizScreen" class="hidden">
+        <div class="toolbar">
+          <div class="controls">
+            <div class="pill" id="counter">Question 1 / 35</div>
+            <div class="pill" id="sectionPill">Section</div>
+            <div class="pill" id="scorePreview">Score: 0</div>
+            <div class="pill" id="timerPill">Time: --:--</div>
+          </div>
+          <div class="controls">
+            <button class="secondary" id="themeBtnQuiz">Dark mode</button>
+          </div>
+        </div>
+
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+        <div class="question-title" id="questionText"></div>
+        <div class="hint" id="questionHint"></div>
+        <div class="answers" id="answersBox"></div>
+        <div id="feedbackBox" class="feedback hidden"></div>
+
+        <div class="controls">
+          <button class="secondary" id="prevBtn">Previous</button>
+          <button class="danger" id="clearBtn">Clear answer</button>
+          <button class="success" id="checkBtn">Check answer</button>
+          <button class="primary" id="nextBtn">Next</button>
+          <button class="primary hidden" id="finishBtn">Finish quiz</button>
+        </div>
+      </div>
+
+      <div id="resultScreen" class="hidden">
+        <h1>Your result</h1>
+        <div class="result-score" id="finalScore"></div>
+        <p class="sub" id="finalText"></p>
+
+        <div class="stats">
+          <div class="stat"><strong id="correctStat">0</strong>Correct</div>
+          <div class="stat"><strong id="wrongStat">0</strong>Wrong</div>
+          <div class="stat"><strong id="unansweredStat">0</strong>Blank</div>
+          <div class="stat"><strong id="percentStat">0%</strong>Percent</div>
+        </div>
+
+        <div class="controls" style="margin-top:20px;">
+          <button class="primary" id="restartBtn">Back to start</button>
+          <button class="secondary" id="reviewBtn">Show review</button>
+          <button class="secondary" id="practiceWrongBtn">Practice wrong answers</button>
+          <button class="secondary" id="themeBtnResult">Toggle dark mode</button>
+        </div>
+        <div id="reviewSection" class="review-list hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const allQuestions = [
+      { id: 1, section: 'Nyshanbayev et al. (2025)', question: 'Question 1', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 2, section: 'Nyshanbayev et al. (2025)', question: 'Question 2', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 3, section: 'Nyshanbayev et al. (2025)', question: 'Question 3', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 4, section: 'Nyshanbayev et al. (2025)', question: 'Question 4', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 5, section: 'Nyshanbayev et al. (2025)', question: 'Question 5', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 6, section: 'Nyshanbayev et al. (2025)', question: 'Question 6', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 7, section: 'Nyshanbayev et al. (2025)', question: 'Question 7', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 8, section: 'Nyshanbayev et al. (2025)', question: 'Question 8', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 9, section: 'Nyshanbayev et al. (2025)', question: 'Question 9', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 10, section: 'Nyshanbayev et al. (2025)', question: 'Question 10', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 11, section: 'Nyshanbayev et al. (2025)', question: 'Question 11', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 12, section: 'Nyshanbayev et al. (2025)', question: 'Question 12', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 13, section: 'Nyshanbayev et al. (2025)', question: 'Question 13', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 14, section: 'Nyshanbayev et al. (2025)', question: 'Question 14', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 15, section: 'Nyshanbayev et al. (2025)', question: 'Question 15', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 16, section: 'Nyshanbayev et al. (2025)', question: 'Question 16', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 17, section: 'Nyshanbayev et al. (2025)', question: 'Question 17', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 18, section: 'Nyshanbayev et al. (2025)', question: 'Question 18', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 19, section: 'Nyshanbayev et al. (2025)', question: 'Question 19', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 20, section: 'Nyshanbayev et al. (2025)', question: 'Question 20', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 21, section: 'Olcott (1995)', question: 'Question 1', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 22, section: 'Olcott (1995)', question: 'Question 2', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 23, section: 'Olcott (1995)', question: 'Question 3', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 24, section: 'Olcott (1995)', question: 'Question 4', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 25, section: 'Olcott (1995)', question: 'Question 5', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 26, section: 'Olcott (1995)', question: 'Question 6', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 27, section: 'Olcott (1995)', question: 'Question 7', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 28, section: 'Olcott (1995)', question: 'Question 8', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 29, section: 'Olcott (1995)', question: 'Question 9', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 30, section: 'Olcott (1995)', question: 'Question 10', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 31, section: 'Olcott (1995)', question: 'Question 11', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] },
+      { id: 32, section: 'Olcott (1995)', question: 'Question 12', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 33, section: 'Olcott (1995)', question: 'Question 13', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['C'] },
+      { id: 34, section: 'Olcott (1995)', question: 'Question 14', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['B'] },
+      { id: 35, section: 'Olcott (1995)', question: 'Question 15', options: { A: 'Option A', B: 'Option B', C: 'Option C', D: 'Option D' }, correct: ['A'] }
+    ];
+
+    let quizQuestions = [];
+    let currentIndex = 0;
+    let userAnswers = [];
+    let checkedAnswers = [];
+    let score = 0;
+    let wrongQuestionIds = JSON.parse(localStorage.getItem('reading35WrongIds') || '[]');
+    let timerMinutes = 0;
+    let timerSecondsLeft = 0;
+    let timerInterval = null;
+    let instantFeedbackEnabled = true;
+
+    const body = document.body;
+    const startScreen = document.getElementById('startScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const questionText = document.getElementById('questionText');
+    const questionHint = document.getElementById('questionHint');
+    const answersBox = document.getElementById('answersBox');
+    const counter = document.getElementById('counter');
+    const sectionPill = document.getElementById('sectionPill');
+    const scorePreview = document.getElementById('scorePreview');
+    const progressBar = document.getElementById('progressBar');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const finishBtn = document.getElementById('finishBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const finalScore = document.getElementById('finalScore');
+    const finalText = document.getElementById('finalText');
+    const restartBtn = document.getElementById('restartBtn');
+    const reviewBtn = document.getElementById('reviewBtn');
+    const reviewSection = document.getElementById('reviewSection');
+    const practiceWrongBtn = document.getElementById('practiceWrongBtn');
+    const correctStat = document.getElementById('correctStat');
+    const wrongStat = document.getElementById('wrongStat');
+    const unansweredStat = document.getElementById('unansweredStat');
+    const percentStat = document.getElementById('percentStat');
+    const timerPill = document.getElementById('timerPill');
+    const startAllBtn = document.getElementById('startAllBtn');
+    const startNBtn = document.getElementById('startNBtn');
+    const startOBtn = document.getElementById('startOBtn');
+    const startWrongBtn = document.getElementById('startWrongBtn');
+    const instantFeedbackToggle = document.getElementById('instantFeedbackToggle');
+    const shuffleToggle = document.getElementById('shuffleToggle');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const timerSelect = document.getElementById('timerSelect');
+    const themeBtnStart = document.getElementById('themeBtnStart');
+    const themeBtnQuiz = document.getElementById('themeBtnQuiz');
+    const themeBtnResult = document.getElementById('themeBtnResult');
+
+    function arraysEqual(a, b) {
+      return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+    }
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const sec = (seconds % 60).toString().padStart(2, '0');
+      return `${min}:${sec}`;
+    }
+    function updateTimerDisplay() {
+      timerPill.textContent = timerMinutes > 0 ? `Time: ${formatTime(timerSecondsLeft)}` : 'Time: --:--';
+    }
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    function startTimer() {
+      stopTimer();
+      if (timerMinutes <= 0) { updateTimerDisplay(); return; }
+      timerSecondsLeft = timerMinutes * 60;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timerSecondsLeft--;
+        updateTimerDisplay();
+        if (timerSecondsLeft <= 0) { stopTimer(); showResults(true); }
+      }, 1000);
+    }
+    function applyTheme(isDark) {
+      body.classList.toggle('dark', isDark);
+      darkModeToggle.checked = isDark;
+    }
+    function toggleTheme() { applyTheme(!body.classList.contains('dark')); }
+
+    function buildQuizQuestions(mode) {
+      if (mode === 'nyshanbayev') quizQuestions = allQuestions.filter(q => q.section.includes('Nyshanbayev'));
+      else if (mode === 'olcott') quizQuestions = allQuestions.filter(q => q.section.includes('Olcott'));
+      else if (mode === 'wrong') {
+        const filtered = allQuestions.filter(q => wrongQuestionIds.includes(q.id));
+        quizQuestions = filtered.length ? filtered : [...allQuestions];
+      } else quizQuestions = [...allQuestions];
+      if (shuffleToggle.checked) quizQuestions = shuffleArray(quizQuestions);
+    }
+
+    function startQuiz(mode = 'all') {
+      buildQuizQuestions(mode);
+      currentIndex = 0;
+      userAnswers = Array(quizQuestions.length).fill(null).map(() => []);
+      checkedAnswers = Array(quizQuestions.length).fill(false);
+      score = 0;
+      instantFeedbackEnabled = instantFeedbackToggle.checked;
+      timerMinutes = Number(timerSelect.value);
+      applyTheme(darkModeToggle.checked);
+      reviewSection.classList.add('hidden');
+      reviewBtn.textContent = 'Show review';
+      startScreen.classList.add('hidden');
+      resultScreen.classList.add('hidden');
+      quizScreen.classList.remove('hidden');
+      startTimer();
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = quizQuestions[currentIndex];
+      questionText.textContent = `${q.id}. ${q.question}`;
+      questionHint.textContent = 'Select 1 answer.';
+      counter.textContent = `Question ${currentIndex + 1} / ${quizQuestions.length}`;
+      sectionPill.textContent = q.section;
+      scorePreview.textContent = `Score: ${score}`;
+      progressBar.style.width = `${((currentIndex + 1) / quizQuestions.length) * 100}%`;
+      feedbackBox.classList.add('hidden');
+      feedbackBox.textContent = '';
+      answersBox.innerHTML = '';
+
+      Object.entries(q.options).forEach(([key, value]) => {
+        const label = document.createElement('label');
+        label.className = 'option';
+        if (userAnswers[currentIndex].includes(key)) label.classList.add('selected');
+
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = `question-${q.id}`;
+        input.value = key;
+        input.checked = userAnswers[currentIndex].includes(key);
+        input.disabled = checkedAnswers[currentIndex];
+        input.addEventListener('change', () => {
+          if (checkedAnswers[currentIndex]) return;
+          userAnswers[currentIndex] = [key];
+          renderQuestion();
+        });
+
+        label.appendChild(input);
+        label.append(` ${key}) ${value}`);
+
+        if (checkedAnswers[currentIndex]) {
+          if (q.correct.includes(key)) label.classList.add('correct-answer');
+          if (userAnswers[currentIndex].includes(key) && !q.correct.includes(key)) label.classList.add('wrong-answer');
+        }
+        answersBox.appendChild(label);
+      });
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.classList.toggle('hidden', currentIndex === quizQuestions.length - 1);
+      finishBtn.classList.toggle('hidden', currentIndex !== quizQuestions.length - 1);
+
+      if (checkedAnswers[currentIndex]) {
+        const correctText = q.correct.join(', ');
+        const isRight = arraysEqual(userAnswers[currentIndex], q.correct);
+        feedbackBox.className = `feedback ${isRight ? 'correct' : 'wrong'}`;
+        feedbackBox.innerHTML = isRight ? 'Correct! ✅' : `Not correct. ❌ Correct answer: ${correctText}`;
+        feedbackBox.classList.remove('hidden');
+      }
+    }
+
+    function checkCurrentAnswer() {
+      if (checkedAnswers[currentIndex]) return;
+      const q = quizQuestions[currentIndex];
+      const selected = userAnswers[currentIndex];
+      if (!selected.length) {
+        feedbackBox.className = 'feedback wrong';
+        feedbackBox.textContent = 'Choose an answer first.';
+        feedbackBox.classList.remove('hidden');
+        return;
+      }
+      checkedAnswers[currentIndex] = true;
+      if (arraysEqual(selected, q.correct)) score++;
+      if (instantFeedbackEnabled) renderQuestion();
+      else scorePreview.textContent = `Score: ${score}`;
+    }
+
+    function showResults(timeExpired = false) {
+      stopTimer();
+      quizScreen.classList.add('hidden');
+      resultScreen.classList.remove('hidden');
+      let correctCount = 0, wrongCount = 0, blankCount = 0;
+      const currentWrongIds = [];
+      quizQuestions.forEach((q, index) => {
+        if (!userAnswers[index].length) { blankCount++; currentWrongIds.push(q.id); }
+        else if (arraysEqual(userAnswers[index], q.correct)) correctCount++;
+        else { wrongCount++; currentWrongIds.push(q.id); }
+      });
+      wrongQuestionIds = [...new Set(currentWrongIds)];
+      localStorage.setItem('reading35WrongIds', JSON.stringify(wrongQuestionIds));
+      const percent = Math.round((correctCount / quizQuestions.length) * 100);
+      finalScore.textContent = `${correctCount} / ${quizQuestions.length}`;
+      finalText.textContent = timeExpired ? `Time is up. You scored ${percent}%.` : `You scored ${percent}%.`;
+      correctStat.textContent = correctCount;
+      wrongStat.textContent = wrongCount;
+      unansweredStat.textContent = blankCount;
+      percentStat.textContent = `${percent}%`;
+      renderReview();
+    }
+
+    function renderReview() {
+      reviewSection.innerHTML = '';
+      quizQuestions.forEach((q, index) => {
+        const item = document.createElement('div');
+        const correct = arraysEqual(userAnswers[index], q.correct);
+        item.className = `review-item ${correct ? 'correct' : 'wrong'}`;
+        const userText = userAnswers[index].length ? userAnswers[index].join(', ') : 'No answer';
+        const correctText = q.correct.join(', ');
+        item.innerHTML = `
+          <div><strong>${q.id}. ${q.question}</strong></div>
+          <div class="small muted" style="margin-top:8px;">Section: ${q.section}</div>
+          <div class="small muted">Your answer: ${userText}</div>
+          <div class="small muted">Correct answer: ${correctText}</div>
+        `;
+        reviewSection.appendChild(item);
+      });
+    }
+
+    prevBtn.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; renderQuestion(); } });
+    nextBtn.addEventListener('click', () => {
+      if (!checkedAnswers[currentIndex] && instantFeedbackEnabled) checkCurrentAnswer();
+      if (currentIndex < quizQuestions.length - 1) { currentIndex++; renderQuestion(); }
+    });
+    finishBtn.addEventListener('click', () => {
+      if (!checkedAnswers[currentIndex] && instantFeedbackEnabled) checkCurrentAnswer();
+      showResults();
+    });
+    clearBtn.addEventListener('click', () => {
+      if (checkedAnswers[currentIndex]) return;
+      userAnswers[currentIndex] = [];
+      renderQuestion();
+    });
+    checkBtn.addEventListener('click', checkCurrentAnswer);
+    restartBtn.addEventListener('click', () => {
+      stopTimer();
+      resultScreen.classList.add('hidden');
+      quizScreen.classList.add('hidden');
+      startScreen.classList.remove('hidden');
+    });
+    reviewBtn.addEventListener('click', () => {
+      reviewSection.classList.toggle('hidden');
+      reviewBtn.textContent = reviewSection.classList.contains('hidden') ? 'Show review' : 'Hide review';
+    });
+    practiceWrongBtn.addEventListener('click', () => startQuiz('wrong'));
+    startAllBtn.addEventListener('click', () => startQuiz('all'));
+    startNBtn.addEventListener('click', () => startQuiz('nyshanbayev'));
+    startOBtn.addEventListener('click', () => startQuiz('olcott'));
+    startWrongBtn.addEventListener('click', () => startQuiz('wrong'));
+    themeBtnStart.addEventListener('click', toggleTheme);
+    themeBtnQuiz.addEventListener('click', toggleTheme);
+    themeBtnResult.addEventListener('click', toggleTheme);
+
+    applyTheme(false);
+    updateTimerDisplay();
+  </script>
+</body>
+</html>
